@@ -34,8 +34,8 @@ def get_data_label():
 	l_test_data = l_test_data.reshape(2, 18)
 	return l_train_data, l_train_label, l_test_data, l_test_label
 
-if __name__ == '__main__':
-	print(get_data_label())
+# if __name__ == '__main__':
+print(get_data_label())
 
 
 
