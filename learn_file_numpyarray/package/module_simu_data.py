@@ -32,6 +32,15 @@ def get_data_label():
 	l_test_data, l_test_label = convert_data_label_from_batch_to_nparray(2)
 	l_train_data = l_train_data.reshape(4, 18)
 	l_test_data = l_test_data.reshape(2, 18)
+	# print(type(l_train_data))
+	# print(type(l_train_label))
+	# print(type(l_test_data))
+	# print(type(l_test_data))
+
+	# print(l_train_data.shape)
+	# print(l_train_label.shape)
+	# print(l_test_data.shape)
+	# print(l_test_label.shape)
 	return l_train_data, l_train_label, l_test_data, l_test_label
 
 # if __name__ == '__main__':
