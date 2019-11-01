@@ -1,5 +1,6 @@
 # from data.simu_data.module_simu_data import get_data_label 
 from package.classifiers.nearest_neighbor import NearestNeighbor
+from package.module_simu_data import get_data_label
 # import numpy as np
 # from package.module_data import load_CIFAR10
 
@@ -26,7 +27,8 @@ from package.classifiers.nearest_neighbor import NearestNeighbor
 # # print 'accuracy: %f' % ( np.mean(Yte_predict == Yte) )
 # print('accuracy: %f', np.mean(Yte_predict, Yte))
 
-# Xtr, Ytr, Xte, Yte = get_data_label()
+Xtr, Ytr, Xte, Yte = get_data_label()
+print(Xtr, Ytr, Xte, Yte)
 nn = NearestNeighbor()
 # nn.train(Xtr, Ytr)
 # print(nn.predict(Xte))

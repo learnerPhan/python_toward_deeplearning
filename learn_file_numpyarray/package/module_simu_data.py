@@ -1,5 +1,5 @@
 import numpy as np
-from simu_data.data_cifar10 import *
+from data_cifar10 import *
 
 def mergeRGB(data):
 	data = data.reshape(2, 3, 2, 3)
