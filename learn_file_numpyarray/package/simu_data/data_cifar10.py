@@ -21,10 +21,10 @@ train_batch[0]['data'] = np.array([Image0, Image1])
 train_batch[0]['labels'] = [Class0, Class1]
 
 train_batch[1]['data'] = np.array([Image2, Image3])
-train_batch[1]['labels'] = [Class2, Class2]
+train_batch[1]['labels'] = [Class2, Class3]
 
 test_batch['data'] = np.array([Image2, Image3])
-test_batch['labels'] = [Class2, Class2]
+test_batch['labels'] = [Class2, Class3]
 
 #RQ1 : 2 training batches, 1 testing batch
 if 0:
