@@ -17,5 +17,5 @@ class MyNearestNeighbor:
 		for i in range(num_test):
 			print(i)
 			distances = np.sum(np.abs(self.train_data - test_data[i]), axis=1)
-			predict_label.append(np.argmin(distances))
+			predict_label.append(self.train_label[np.argmin(distances)])
 		return predict_label
