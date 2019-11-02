@@ -23,4 +23,4 @@ Yte_predict = nn.predict(Xte_rows) # predict labels on the test images
 # and now print the classification accuracy, which is the average number
 # of examples that are correctly predicted (i.e. label matches)
 # print 'accuracy: %f' % ( np.mean(Yte_predict == Yte) )
-print('accuracy: %f', np.mean(Yte_predict, Yte))
+print('accuracy: %f', np.mean(Yte_predict == Yte))
