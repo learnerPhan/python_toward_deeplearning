@@ -1,5 +1,6 @@
 import numpy as np
 from package.classifiers.nearest_neighbor import NearestNeighbor
+from package.classifiers.my_nearest_neighbor import MyNearestNeighbor
 from package.module_simu_data import get_data_label
 
 Xtr, Ytr, Xte, Yte = get_data_label()
@@ -11,7 +12,7 @@ Xtr, Ytr, Xte, Yte = get_data_label()
 nn = NearestNeighbor()
 nn.train(Xtr, Ytr)
 Yte_predict = nn.predict(Xte) 
-# print(Yte_predict)
+print(Yte_predict)
 # print(type(Yte_predict == Yte))
 # print(Yte_predict == Yte)
 # print('accuracy: %f' % ( np.mean(Yte_predict == Yte) ))
@@ -32,3 +33,8 @@ print(np.abs(Xtr - Xte[1:]))
 print(np.sum(np.abs(Xtr - Xte[1:]), axis=0))
 print(np.sum(np.abs(Xtr - Xte[1:]), axis=1))
 print(np.argmin(np.sum(np.abs(Xtr - Xte[1:]), axis=1)))
+
+print('------------------')
+mnn = MyNearestNeighbor()
+mnn.train(Xtr, Ytr)
+print(mnn.predict(Xte))
