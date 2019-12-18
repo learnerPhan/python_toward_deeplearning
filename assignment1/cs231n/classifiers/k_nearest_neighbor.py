@@ -138,11 +138,26 @@ class KNearestNeighbor(object):
         #       and two broadcast sums.                                         #
         #########################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        su_sq_te = np.sum(np.square(X), axis = 1)
+        print('su_sq_te.shape : ', su_sq_te.shape)
+        su_sq_te_mat = np.tile(su_sq_te.reshape(num_test,1), (1, num_train)) 
+        print('su_sq_te_mat.shape : ', su_sq_te_mat.shape)
 
-        pass
+        su_sq_tr = np.sum(np.square(self.X_train), axis = 1)
+        print('su_sq_tr.shape : ', su_sq_tr.shape)
+        su_sq_tr_mat = np.tile(su_sq_tr.reshape(1,num_train), ( num_test, 1)) 
+        print('su_sq_tr_mat.shape : ', su_sq_tr_mat.shape)
+
+        X_train_T = np.transpose(self.X_train)
+        print('X_train_T.shape : ', X_train_T.shape)
+
+        dists = su_sq_te_mat + su_sq_tr_mat - 2*np.matmul(X, X_train_T)
+        print('dists.shape : ', dists.shape)
+
+        # dists = np.tile(su_sq_te, (num_train, 1)) + np.tile(su_sq_tr, (num_test, 1)) - dists
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-        return dists
+        return np.sqrt(dists)
 
     def predict_labels(self, dists, k=1):
         """
