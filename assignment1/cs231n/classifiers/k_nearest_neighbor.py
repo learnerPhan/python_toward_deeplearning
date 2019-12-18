@@ -96,6 +96,10 @@ class KNearestNeighbor(object):
         num_train = self.X_train.shape[0]
         dists = np.zeros((num_test, num_train))
         for i in range(num_test):
+            """
+            The first attempt is very slow, even slower then two_loops version
+            """
+            """
             m_i = np.tile(X[i,:], (num_train,1))
             m_i_vec = m_i.reshape(5000*3072,1)
             train_vec = self.X_train.reshape(5000*3072,1)
@@ -109,6 +113,14 @@ class KNearestNeighbor(object):
             sq_vec = np.square(m_i_vec - train_vec)
             sq_mat = sq_vec.reshape(5000, 3072)
             dists[i, :] = np.sqrt(np.sum(sq_mat, axis = 1))
+            """
+            """
+            Second attempt borrows idea from https://github.com/jariasf
+            (X-Y)^2 = X^2 + Y^2 -2XY
+            """
+            su_sq_te_mat = np.repeat(np.sum(np.square(X[i,:]), axis = 0), num_train)
+            su_sq_tr = np.sum(np.square(self.X_train), axis = 1)
+            dists[i,:] = np.sqrt(su_sq_te_mat + su_sq_tr - 2*np.matmul(X[i,:], self.X_train.T))
             pass
 
             # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
