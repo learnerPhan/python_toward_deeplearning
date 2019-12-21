@@ -61,4 +61,56 @@ for i in random_lb:
 	print(images[i])
 	#we expect images[i]=given_lb**2
 
+"""
+Extract sub-array from array
+"""
+print('Extract sub-array from array')
+n=5
+org = np.array(range(n))
+print(org)
+org += 4
 
+n=3
+sub_ind = list(range(n))
+print(sub_ind)
+# [0, 1, 2, .., n]
+
+sub = org[sub_ind]
+print(sub)
+print(org)
+
+"""
+Reshape multi-dimension numpy array
+-1 trick
+"""
+print('Reshape multi-dimension numpy array')
+
+#create randomly 2D
+arr_2d = np.random.randint(5, size=(3,4))
+print(arr_2d)
+
+#reshape
+new_shape = (2,6)
+arr_2d = np.reshape(arr_2d,new_shape)
+print(arr_2d)
+
+#2D to 1D
+two2oneD = np.reshape(arr_2d, -1)
+print(two2oneD)
+
+#create randomly 3D
+ar_3d = np.random.randint(10, size=(3,2,4))
+print(ar_3d)
+
+#to 2D
+a = np.reshape(ar_3d, (ar_3d.shape[0], -1))
+print(a.shape)
+print(a)
+
+b = np.reshape(ar_3d, (ar_3d.shape[1], -1))
+print(b.shape)
+print(b)
+
+c = np.reshape(ar_3d, (ar_3d.shape[2], -1))
+print(c.shape)
+print(c)
