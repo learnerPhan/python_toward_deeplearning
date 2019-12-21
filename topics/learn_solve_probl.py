@@ -114,3 +114,33 @@ print(b)
 c = np.reshape(ar_3d, (ar_3d.shape[2], -1))
 print(c.shape)
 print(c)
+
+"""
+Compute common elements in 2 array
+trick : np.sum(X==Y)
+"""
+print('trick : np.sum(X==Y)')
+X = np.random.randint(5, size=5)
+Y = np.random.randint(6, size=5)
+print(X)
+print(Y)
+com_elm = np.sum(X==Y)
+print(com_elm)
+
+"""
+work with dictionary
+"""
+ret = {}
+k_choices = [1, 2, 3]
+
+for k in k_choices:
+	ret[k] = []
+	for i in range(3):
+		ret[k].append(i*k)
+
+print(ret)
+
+partial_sum = np.array([np.sum(v) for k, v in ret.items()])
+print(partial_sum)
+
+
