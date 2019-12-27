@@ -48,7 +48,11 @@ classes = ['plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship'
 num_classes = len(classes)
 samples_per_class = 7
 for y, cls in enumerate(classes):
+#y = [0,1,..,9]
+#cls = ['plane','car',...,'truck']
     idxs = np.flatnonzero(y_train == y)
+    #indices of array=y_train==y that are non-zero
+    #a way to find the places in y_train labels that are given in classes
     idxs = np.random.choice(idxs, samples_per_class, replace=False)
     for i, idx in enumerate(idxs):
         plt_idx = i * num_classes + y + 1
@@ -57,6 +61,7 @@ for y, cls in enumerate(classes):
         plt.axis('off')
         if i == 0:
             plt.title(cls)
+
 plt.show()
 
 # Subsample the data for more efficient code execution in this exercise
@@ -83,7 +88,68 @@ from cs231n.classifiers import KNearestNeighbor
 classifier = KNearestNeighbor()
 classifier.train(X_train, y_train)
 
+"""
 dists = classifier.compute_distances_two_loops(X_test)
 print(dists.shape)
 plt.imshow(dists, interpolation='none')
 plt.show()
+
+# Now implement the function predict_labels and run the code below:
+# We use k = 1 (which is Nearest Neighbor).
+y_test_pred = classifier.predict_labels(dists, k=1)
+
+# Compute and print the fraction of correctly predicted examples
+num_correct = np.sum(y_test_pred == y_test)
+accuracy = float(num_correct) / num_test
+print('Got %d / %d correct => accuracy: %f' % (num_correct, num_test, accuracy))
+"""
+
+num_folds = 5
+k_choices = [1, 3, 5, 8, 10, 12, 15, 20, 50, 100]
+
+X_train_folds = []
+y_train_folds = []
+
+X_train_folds = np.array_split(classifier.X_train, num_folds)
+y_train_folds = np.array_split(classifier.y_train, num_folds)
+pass
+
+k_to_accuracies = {}
+X_val = X_train_folds[num_folds-1]
+y_val = y_train_folds[num_folds-1]
+
+for k in k_choices:
+    k_to_accuracies[k] = []
+    for i in range(num_folds):
+        knn = KNearestNeighbor()
+        knn.train(X_train_folds[i], y_train_folds[i])
+        y_predict = knn.predict(X_val, k = k)
+        acc = np.mean(y_predict == y_val)
+        k_to_accuracies[k].append(acc)
+
+print('k_to_accuracies')
+print(k_to_accuracies)
+
+pass
+for k in k_choices:
+    accuracies = k_to_accuracies[k]
+    plt.scatter([k] * len(accuracies), accuracies)
+
+plt.show()
+
+for k,v in sorted(k_to_accuracies.items()):
+  print(k, v)
+
+for k,v in sorted(k_to_accuracies.items()):
+  print(k, v)
+
+"""
+# plot the trend line with error bars that correspond to standard deviation
+accuracies_mean = np.array([np.mean(v) for k,v in sorted(k_to_accuracies.items())])
+accuracies_std = np.array([np.std(v) for k,v in sorted(k_to_accuracies.items())])
+plt.errorbar(k_choices, accuracies_mean, yerr=accuracies_std)
+plt.title('Cross-validation on k')
+plt.xlabel('k')
+plt.ylabel('Cross-validation accuracy')
+plt.show()
+"""
