@@ -80,6 +80,40 @@ def svm_loss_vectorized(W, X, y, reg):
 
     pass
 
+    num_train = X.shape[0]
+    """
+    print(X.shape)
+    print(W.shape)
+    X.shape = (500, 3073)
+    W.shape = (3073, 10)
+    """
+    scores = X.dot(W)
+    """
+    print(scores.shape)
+    scores.shape = (500, 10)
+    """
+
+    #extract from 10 scores the score of the true label of the image
+    #using avanced indexing
+    rows = np.array(range(num_train))
+    #reshape scores's shape so that broadcast can be used
+    im_scores = scores[rows, y].reshape(num_train,1)
+    """
+    print(im_scores.shape)
+    """
+
+    margin = scores - im_scores + 1
+    """
+    print(margin.shape)
+    """
+
+    #use avanced indexing to simplify margin matrix so we can use broadcast sum
+    margin[rows, y] = 0
+    margin[margin<0] = 0
+    loss_i = np.sum(margin, axis=1)
+    loss = np.sum(loss_i)
+    loss = loss/num_train
+
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     #############################################################################
