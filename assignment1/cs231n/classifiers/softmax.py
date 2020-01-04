@@ -100,6 +100,49 @@ def softmax_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    print(W.shape)
+    #(3073, 10)
+    print(X.shape)
+    #(500, 3073)
+
+    num_train = X.shape[0]
+    rows = np.arange(num_train)
+
+    scores = X.dot(W)
+    print(scores.shape)
+    #(500, 10)
+
+    #stability trick
+    scores -= np.max(scores, axis=1).reshape(num_train,1)
+    #end stability trick
+
+    exp_scores = np.exp(scores)
+    sum_exp_scores_i = np.sum(exp_scores, axis=1)
+    print(sum_exp_scores_i.shape)
+    #(500,)
+
+    correct_exp_scores = exp_scores[rows,y]
+    # print(correct_exp_scores.shape)
+    #(500,)
+    li = correct_exp_scores/sum_exp_scores_i
+    # print(li.shape)
+    #(500,)
+    li = np.log(li)
+    loss -= np.sum(li)
+    loss /= num_train
+    loss += reg*np.sum(W*W)
+
+    # print(exp_scores.shape)
+    #(500, 10)
+    # print(sum_exp_scores_i.shape)
+    #(500,)
+
+
+    M = exp_scores/sum_exp_scores_i.reshape(num_train,1)
+    M[rows, y] -=1
+    dW = X.T.dot(M)
+    dW /= num_train
+    dW += 2*reg*W
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
