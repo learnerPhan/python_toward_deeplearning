@@ -33,6 +33,48 @@ def softmax_loss_naive(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    # print(W.shape)
+    #(3073, 10)
+    # print(X.shape)
+    #(500, 3073)
+
+    num_train = X.shape[0]
+    num_class = W.shape[1]
+
+    for i in range(num_train):
+        #get the scores of image i
+        # print(X[i].shape)
+        #(3073,)
+        scores_i = X[i].dot(W)
+        # print(scores_i.shape)
+        #(10,) 
+
+        #stability trick
+        scores_i -= np.max(scores_i)
+        exp_scores_i = np.exp(scores_i)
+        #end stability trick
+
+        sum_ex_i = np.sum(exp_scores_i)
+
+        # add to loss the sum of image i
+        loss += np.log(sum_ex_i)
+        # do something similar for loss's gradient
+        for j in range(num_class):
+            dW[:,j] += X[i]*exp_scores_i[j]/sum_ex_i
+
+        #subtract from loss the correct scores of the image i
+        loss -= scores_i[y[i]]
+        # do something similar for loss's gradient
+        dW[:, y[i]] -= X[i]
+
+    # average
+    loss /= num_train
+    dW /= num_train
+
+    # regu
+    loss += reg*np.sum(W*W)
+    dW += reg*2*W
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
