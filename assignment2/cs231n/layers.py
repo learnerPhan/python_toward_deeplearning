@@ -102,6 +102,16 @@ def relu_forward(x):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    """
+    out1 = x
+    out1[out1<0] = 0
+
+    although this solution returns out as expected but it changes x.
+    and it affects to the result of backward
+    """
+
+    out = np.maximum(0, x)
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -130,6 +140,8 @@ def relu_backward(dout, cache):
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     pass
+
+    dx = dout.reshape(x.shape) * (x>0)
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################

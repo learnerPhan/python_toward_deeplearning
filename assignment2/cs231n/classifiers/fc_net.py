@@ -49,6 +49,12 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        self.params['W1'] = np.random.normal(loc=0.0, scale=weight_scale, size=(input_dim, hidden_dim))
+        self.params['b1'] = 0
+        self.params['W2'] = np.random.normal(loc=0.0, scale=weight_scale, size=(input_dim, hidden_dim))
+        self.params['b2'] = 0
+
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -83,6 +89,30 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        """
+        Reminder : 
+
+        1. The architecture of the network :
+            input - FC - ReLU - FC - softmax
+
+        2. loss function = softmax
+
+        3. input - FC - ReLU - FC - softmax
+                                  <--here the scores
+
+        4. FC = (x -> x*w + b)
+           ReLU = (x -> max(0,x))
+        """
+
+        # unpack
+        W1, b1  = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+
+        # output layer-to-layer
+        out_fc, cache_fc_1 = affine_forward(X, W1, b1)
+        out_relu, cache_relu = relu_forward(out_fc.reshape(np.prod(out_fc.shape)))
+        scores, cache_fc_2 = affine_forward(out_relu.reshape(out_fc.shape), W2, b2)
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -107,7 +137,49 @@ class TwoLayerNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        """
+        Reminder :
+        A/ score structure
+        1. scores.shape = (number_of_images, number_of_labels)
+        2. scores[i] is the score vector of image i
+        3. scores[i][j] is the scores for label j of image i
+
+        B/ score computation
+        1. stability trick : scores -= np.max(scores, axis=1) before exponential
+        2. loss = data_loss + reg_loss
+        3. reg_loss = self.reg * (np.sum(W1*W1) + np.sum(W2*W2))
+
+        """
+        N = X.shape[0]
+
+        scores -= np.max(scores, axis=1).reshape(scores.shape[0],1)
+        exp_scores = np.exp(scores)
+        sum_exp_vec = np.sum(exp_scores, axis=1).reshape(exp_scores.shape[0],1)
+        softmax_mat = exp_scores/sum_exp_vec
+
+        L_images = np.log(softmax_mat[np.arange(N), y])
+
+        data_loss = np.sum(L_images)/N
+        reg_loss = 0.5*self.reg * (np.sum(W1*W1) + np.sum(W2*W2))
+        loss = reg_loss - data_loss
+
         pass
+
+
+        softmax_mat[np.arange(N), y] -= 1
+        dReLU, dW2, db2 = affine_backward(softmax_mat, cache_fc_2)
+        dfc1 = relu_backward(dReLU, cache_relu)
+        _, dW1, db1 = affine_backward(dfc1.reshape(N, len(b1)), cache_fc_1)
+
+        dW1 /= N
+        dW2 /= N
+        db1 /= N
+        db2 /= N
+
+        dW1 += self.reg*W1
+        dW2 += self.reg*W2 
+
+        grads = {'W1':dW1, 'b1':db1, 'W2':dW2, 'b2':db2}
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
