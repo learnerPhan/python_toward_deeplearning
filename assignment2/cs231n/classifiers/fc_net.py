@@ -50,9 +50,9 @@ class TwoLayerNet(object):
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
         self.params['W1'] = np.random.normal(loc=0.0, scale=weight_scale, size=(input_dim, hidden_dim))
-        self.params['b1'] = 0
-        self.params['W2'] = np.random.normal(loc=0.0, scale=weight_scale, size=(input_dim, hidden_dim))
-        self.params['b2'] = 0
+        self.params['b1'] = np.zeros(hidden_dim)
+        self.params['W2'] = np.random.normal(loc=0.0, scale=weight_scale, size=(hidden_dim, num_classes))
+        self.params['b2'] = np.zeros(num_classes)
 
 
         pass
@@ -157,6 +157,9 @@ class TwoLayerNet(object):
         sum_exp_vec = np.sum(exp_scores, axis=1).reshape(exp_scores.shape[0],1)
         softmax_mat = exp_scores/sum_exp_vec
 
+        #print('fc_net.py')
+        #print(y.dtype)
+        y = y.astype(int)
         L_images = np.log(softmax_mat[np.arange(N), y])
 
         data_loss = np.sum(L_images)/N

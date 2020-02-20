@@ -29,7 +29,12 @@ def affine_forward(x, w, b):
 
     N = x.shape[0]
     D = np.prod(x.shape[1:])
-    out = x.reshape(N, D).dot(w) + b
+
+    #print('layers.py')
+    #print(x.shape)
+    #print(x.reshape(N, D).shape)
+    #print(w.shape)
+    out = x.dot(w) + b
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
