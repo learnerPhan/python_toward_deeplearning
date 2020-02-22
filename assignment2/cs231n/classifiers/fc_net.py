@@ -159,8 +159,8 @@ class TwoLayerNet(object):
 
         #print('fc_net.py')
         #print(y.dtype)
-        y = y.astype(int)
-        L_images = np.log(softmax_mat[np.arange(N), y])
+        #y = y.astype(int)
+        L_images = np.log(softmax_mat[np.arange(N), y.astype(int)])
 
         data_loss = np.sum(L_images)/N
         reg_loss = 0.5*self.reg * (np.sum(W1*W1) + np.sum(W2*W2))
@@ -252,6 +252,39 @@ class FullyConnectedNet(object):
         # parameters should be initialized to zeros.                               #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+        string_w = 'W'
+        w_keys = [string_w + str(i) for i in range(1, self.num_layers + 1)]
+        string_b = 'b'
+        b_keys = [string_b + str(i) for i in range(1, self.num_layers + 1)]
+        print(w_keys)
+        print(b_keys)
+
+        # print(hidden_dims)
+        # add input_dim at the begin of list hidden_dim
+        temp_1 = hidden_dims[::-1] + [input_dim]
+        temp_1 = temp_1[::-1]
+        # add num_classes at the end of list hidden_dim
+        temp_2 = hidden_dims + [num_classes]
+
+        temp = list(zip(temp_1, temp_2))
+        print(temp)
+
+        list_w = list(zip(w_keys, temp))
+        list_b = list(zip(b_keys, temp_2))
+
+        # print(list_w)
+        # print(list_b)
+
+        for key, size in list_w:
+            self.params[key] = np.random.normal(loc=0.0, scale=weight_scale, size=size)
+
+        for key, val in list_b:
+            self.params[key] = np.zeros(val)
+
+        """    
+        for k, v in self.params.items():
+            print(k,v)
+        """
 
         pass
 
@@ -316,6 +349,23 @@ class FullyConnectedNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        w_keys = ['W' + str(i) for i in range(1, self.num_layers + 1)]
+        w_vals = [self.params[key] for key in w_keys]
+        b_keys = ['b' + str(i) for i in range(1, self.num_layers + 1)]
+        b_vals = [self.params[key] for key in b_keys]
+
+        # print(w_vals)
+        # print(b_vals)
+        out = X
+        outs = []
+        caches = []
+        for i in range(self.num_layers):
+            out, cache = affine_relu_forward(out, w_vals[i], b_vals[i])
+            outs.append(out)
+            caches.append(cache)
+
+        scores = outs[-1]
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -342,6 +392,50 @@ class FullyConnectedNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        scores -= np.max(scores, axis=1).reshape(scores.shape[0],1)
+        exp_scores = np.exp(scores)
+        sum_exp_vec = np.sum(exp_scores, axis=1).reshape(exp_scores.shape[0],1)
+        softmax_mat = exp_scores/sum_exp_vec
+
+        #print('fc_net.py')
+        #print(y.dtype)
+        #y = y.astype(int)
+        N = X.shape[0]
+        L_images = np.log(softmax_mat[np.arange(N), y.astype(int)])
+
+        data_loss = np.sum(L_images)/N
+
+        w_2 = np.array([w*w for w in w_vals])
+        temp = [np.sum(w) for w in w_2]
+        reg_loss = 0.5*self.reg * np.sum(temp)
+        loss = reg_loss - data_loss
+
+        # d_loss/d_scores
+        softmax_mat[np.arange(N), y.astype(int)] -= 1
+
+        rev_outs = outs[::-1]
+        rev_caches = caches[::-1]
+
+        dws = []
+        dbs = []
+
+        dout = softmax_mat
+        for i in range(self.num_layers):
+            dout, dw, db = affine_relu_backward(dout, rev_caches[i])
+            dws.append(dw)
+            dbs.append(db)
+
+        dws.reverse()
+        dbs.reverse()
+
+        dws = np.array(dws)/N
+        dbs = np.array(dbs)/N
+
+        dws = dws + self.reg*np.array(w_vals)
+
+        grads = dict(zip(w_keys, dws))
+        grads.update(dict(zip(b_keys, dbs)))
 
         pass
 
