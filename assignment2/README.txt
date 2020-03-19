@@ -1,3 +1,8 @@
+######################################################################
+######################################################################
+###### Missing OpenSSL when installing Python3.7.x ###################
+
+
 1. Install openssl
 https://help.dreamhost.com/hc/en-us/articles/360001435926-Installing-OpenSSL-locally-under-your-username
 
@@ -33,4 +38,13 @@ virtualenv -p python3 .tf_20_env       # Create a virtual environment (python3)
 # Note: you can also use "virtualenv .env" to use your default python (please note we support 3.6)
 source .env/bin/activate         # Activate the virtual environment
 
-7.  sudo -H pip3.7 install -r requirements.txt
+8.  sudo -H pip3.7 install -r requirements.txt
+
+######################################################################
+######################################################################
+###### SSL: CERTIFICATE_VERIFY_FAILED ################################
+
+https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-failed-error
+
+$ sudo update-ca-certificates --fresh
+$ export SSL_CERT_DIR=/etc/ssl/certs
