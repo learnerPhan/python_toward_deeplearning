@@ -226,6 +226,22 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        """
+        Batch normalization input
+        """
+        # Step 1 : Use minibatch statistics to compute the mean and variance
+        sample_mean = x.mean(axis=0) 
+        sample_var = x.var(axis=0) + eps
+        # Step 2 : Use these statistics to normalize the incoming data
+        x_norm = (x - sample_mean)/np.sqrt(sample_var)
+        # Step 3 : Scale and shift the normalized data using gamma and beta
+        out = gamma*x_norm + beta
+
+        """
+        Update running_mean, running_var
+        """
+        running_mean = momentum * running_mean + (1 - momentum) * sample_mean
+        running_var = momentum * running_var + (1 - momentum) * sample_var
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -240,6 +256,11 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # Store the result in the out variable.                               #
         #######################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        # Step 1 : Normalize the incoming data
+        x_norm = (x - running_mean)/running_var
+        # Step 3 : Scale and shift the normalized data using gamma and beta
+        out = gamma*x_norm + beta        
 
         pass
 
