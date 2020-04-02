@@ -558,6 +558,36 @@ def conv_forward_naive(x, w, b, conv_param):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    N, C, H, W = x.shape
+    F, C, Hf, Wf = w.shape
+    stride, pad = conv_param['stride'], conv_param['pad']
+
+    pad_width = [(0,0)]*x.ndim
+    pad_width[-1] = (pad, pad)
+    pad_width[-2] = (pad, pad)
+    x_pad = np.pad(x, pad_width, 'constant', constant_values=(0,0))
+
+    H_pad = x_pad.shape[2]
+    W_pad = x_pad.shape[3]
+    outH = int(1 + (H_pad - Hf)/stride)
+    outW = int(1 + (W_pad - Wf)/stride)
+    block_size = C*Hf*Wf
+
+    x_conv = np.zeros((N, outH, outW, block_size))
+    w_conv = w.reshape(F, block_size)
+    out = np.zeros((N, F, outH, outW))
+
+    for i in range(N):
+        for h in range(outH):
+            start_h = h*stride
+            end_h = start_h + Hf
+            for w in range(outW):
+                start_w = w*stride
+                end_w = start_w + Wf
+                x_conv[i, h, w, :] = x_pad[i, :, start_h:end_h, start_w:end_w].reshape(block_size)
+
+    for f in range(F):
+        out[:, f, : , :] = np.dot(x_conv, w_conv[f]) + b[f]
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
