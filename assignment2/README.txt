@@ -48,3 +48,15 @@ https://stackoverflow.com/questions/27835619/urllib-and-ssl-certificate-verify-f
 
 $ sudo update-ca-certificates --fresh
 $ export SSL_CERT_DIR=/etc/ssl/certs
+
+######################################################################
+######################################################################
+###### ImportError: /lib64/libm.so.6: version `GLIBC_2.23' not found ################################
+
+1. virtualenv -p python3 .t
+2. source .tf/bin/activate
+
+#important set up environment for tensorflow
+3. sudo -H pip3.7 install --upgrade tensorflow
+
+4. jupyter notebbok
