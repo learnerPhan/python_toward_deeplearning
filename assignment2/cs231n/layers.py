@@ -647,7 +647,7 @@ def conv_backward_naive(dout, cache):
                 x_conv[i, h, wi, :] = x_pad[i, :, start_h:end_h, start_w:end_w].reshape(block_size)
 
     for f in range(F):
-        temp = x_conv*dout[:,f,:,:][:,:,:, np.newaxis]
+        temp = x_conv*dout[:,f,:,:][:,:,:, np.newaxis] # add a new axis for broadcast stuff
         dw[f] += temp.sum(axis=(0,1,2)).reshape((C, Hf, Wf)) 
 
     # dx
@@ -663,8 +663,6 @@ def conv_backward_naive(dout, cache):
                     dx_pad[i, :, start_h:end_h, start_w:end_w] += w[f]*dout[i, f, h, wi]
 
     dx = dx_pad[:, :, 1:H_pad-1, 1:W_pad-1]
-
-
 
     # db
     for f in range(F):
@@ -704,13 +702,38 @@ def max_pool_forward_naive(x, pool_param):
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    # read infos from input
+    N, C, H, W = x.shape
+    pH, pW = pool_param['pool_height'], pool_param['pool_width']
+    stride = pool_param['stride']
+
+    # output size
+    outH = int(1 + (H - pH)/stride)
+    outW = int(1 + (W - pW)/stride)
+
+    out = np.zeros((N, C, outH, outW))
+
+    mask = np.ones(x.shape, dtype=bool)
+
+    for h in range(outH):
+        start_h = h*stride
+        end_h = start_h + pH
+        for w in range(outW):
+            start_w = w*stride
+            end_w = start_w + pW
+            cur_block = x[:,:,start_h:end_h, start_w:end_w]
+            out[:,:,h,w] = cur_block.max(axis=(2,3))
+            # keep track where the max are
+            # true is max's location
+            mask[:,:,start_h:end_h, start_w:end_w] = np.equal(cur_block, out[:,:,h,w][:,:,np.newaxis,np.newaxis])
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ###########################################################################
     #                             END OF YOUR CODE                            #
     ###########################################################################
-    cache = (x, pool_param)
+    cache = (x, pool_param, mask)
     return out, cache
 
 
@@ -730,6 +753,27 @@ def max_pool_backward_naive(dout, cache):
     # TODO: Implement the max-pooling backward pass                           #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    x, pool_param, mask = cache
+
+    N, C, H, W = x.shape
+    pH, pW = pool_param['pool_height'], pool_param['pool_width']
+    stride = pool_param['stride']
+
+    # output size
+    outH, outW = dout.shape[2:]
+
+    dx = np.zeros(x.shape)
+
+    for h in range(outH):
+        start_h = h*stride
+        end_h = start_h + pH
+        for w in range(outW):
+            start_w = w*stride
+            end_w = start_w + pW
+            dx[:,:,start_h:end_h, start_w:end_w] = dout[:,:,h,w][:,:,np.newaxis,np.newaxis]*mask[:,:,start_h:end_h, start_w:end_w]
+
+
 
     pass
 
