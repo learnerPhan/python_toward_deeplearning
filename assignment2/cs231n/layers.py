@@ -581,10 +581,10 @@ def conv_forward_naive(x, w, b, conv_param):
         for h in range(outH):
             start_h = h*stride
             end_h = start_h + Hf
-            for w in range(outW):
-                start_w = w*stride
+            for wi in range(outW):
+                start_w = wi*stride
                 end_w = start_w + Wf
-                x_conv[i, h, w, :] = x_pad[i, :, start_h:end_h, start_w:end_w].reshape(block_size)
+                x_conv[i, h, wi, :] = x_pad[i, :, start_h:end_h, start_w:end_w].reshape(block_size)
 
     for f in range(F):
         out[:, f, : , :] = np.dot(x_conv, w_conv[f]) + b[f]
@@ -616,6 +616,59 @@ def conv_backward_naive(dout, cache):
     # TODO: Implement the convolutional backward pass.                        #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    x, w, b, conv_param = cache
+    stride, pad = conv_param['stride'], conv_param['pad']
+
+    N, C, H, W = x.shape
+    Hf, Wf = w.shape[2:len(w.shape)]
+
+    db = np.zeros(b.shape)
+    F, outH, outW = dout.shape[1:len(dout.shape)]
+
+
+    # rebuid x_pad
+    x_pad = np.pad(x, [(0,0),(0,0),(pad,pad),(pad,pad)], 'constant', constant_values=(0,0))
+    # rebuild x_conv
+    H_pad = x_pad.shape[2]
+    W_pad = x_pad.shape[3]
+    block_size = C*Hf*Wf
+
+    x_conv = np.zeros((N, outH, outW, block_size))
+    dw = np.zeros((F, C, Hf, Wf))
+
+    for i in range(N):
+        for h in range(outH):
+            start_h = h*stride
+            end_h = start_h + Hf
+            for wi in range(outW):
+                start_w = wi*stride
+                end_w = start_w + Wf
+                x_conv[i, h, wi, :] = x_pad[i, :, start_h:end_h, start_w:end_w].reshape(block_size)
+
+    for f in range(F):
+        temp = x_conv*dout[:,f,:,:][:,:,:, np.newaxis]
+        dw[f] += temp.sum(axis=(0,1,2)).reshape((C, Hf, Wf)) 
+
+    # dx
+    dx_pad = np.zeros((x_pad.shape))
+    for i in range(N):
+        for h in range(outH):
+            start_h = h*stride
+            end_h = start_h + Hf
+            for wi in range(outW):
+                start_w = wi*stride
+                end_w = start_w + Wf
+                for f in range(F):
+                    dx_pad[i, :, start_h:end_h, start_w:end_w] += w[f]*dout[i, f, h, wi]
+
+    dx = dx_pad[:, :, 1:H_pad-1, 1:W_pad-1]
+
+
+
+    # db
+    for f in range(F):
+        db[f] = dout[:, f, :, :].sum()
 
     pass
 
