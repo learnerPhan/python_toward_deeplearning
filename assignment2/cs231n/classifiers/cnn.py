@@ -43,7 +43,7 @@ class ThreeLayerConvNet(object):
         # network. Weights should be initialized from a Gaussian centered at 0.0   #
         # with standard deviation equal to weight_scale; biases should be          #
         # initialized to zero. All weights and biases should be stored in the      #
-        #  dictionary self.params. Store weights and biases for the convolutional  #
+        # dictionary self.params. Store weights and biases for the convolutional   #
         # layer using the keys 'W1' and 'b1'; use keys 'W2' and 'b2' for the       #
         # weights and biases of the hidden affine layer, and keys 'W3' and 'b3'    #
         # for the weights and biases of the output affine layer.                   #
@@ -54,6 +54,39 @@ class ThreeLayerConvNet(object):
         # the start of the loss() function to see how that happens.                #                           
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        # parameters W1, b1 for convolutional layer
+        C, H, W = input_dim
+        self.params['W1'] = np.random.normal(loc=0.0, scale=weight_scale, size=(num_filters, C*filter_size*filter_size)).reshape(num_filters, C, filter_size, filter_size)
+        self.params['b1'] = np.zeros((num_filters,))
+
+        # calculate the output size of convolution layer
+        stride = 1
+        pad = (filter_size-1) // 2
+
+        Hpad = H + 2*pad
+        Wpad = W + 2*pad
+
+        oconv_H = 1 + (Hpad - filter_size)//stride
+        oconv_W = 1 + (Wpad - filter_size)//stride
+
+        # calculate the output size of max-pool layer
+        pool_H, pool_W = 2, 2
+        pool_stride = 2
+
+        op_H = 1 + (oconv_H - pool_H)//pool_stride
+        op_W = 1 + (oconv_W - pool_W)//pool_stride
+
+        # calculate the input size of affine layer
+        i_affine_size = num_filters * op_H * op_W
+
+        # parameters W2, b2 for hidden affine layer
+        self.params['W2'] = np.random.normal(loc=0.0, scale=weight_scale, size=(i_affine_size, hidden_dim))
+        self.params['b2'] = np.zeros(hidden_dim)
+
+        # parameters W3, b3 for last affine layter
+        self.params['W3'] = np.random.normal(loc=0.0, scale=weight_scale, size=(hidden_dim, num_classes))
+        self.params['b3'] = np.zeros(num_classes)
 
         pass
 
@@ -95,6 +128,20 @@ class ThreeLayerConvNet(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        """
+        Reminder : Architecture 
+                    conv - relu - 2x2 max pool - affine - relu - affine - softmax
+                    |---frist combined layer---||---second----||--third--|
+        """
+        out, c_r_p_cache = conv_relu_pool_forward(X, W1, b1, conv_param, pool_param)
+        # cache = (conv_cache, relu_cache, pool_cache)
+        out, a_r_cache = affine_relu_forward(out, W2, b2)
+        # cache = (fc_cache, relu_cache)
+        scores, a_r_cache2 = affine_relu_forward(out, W3, b3)
+        # cache = (fc_cache, relu_cache)
+
+
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -117,6 +164,22 @@ class ThreeLayerConvNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+        """
+        Reminder:
+        1. loss = data_loss + reg_loss
+        2. reg_loss = self.reg * (np.sum(W1*W1) + np.sum(W2*W2))
+        """
+        data_loss, dout = softmax_loss(scores, y)
+        reg_loss = 0.5*self.reg * (np.sum(W1*W1) + np.sum(W2*W2) + np.sum(W3*W3))
+        loss = reg_loss + data_loss
+
+
+
+
+
+
+        # grads['W1' : dW1, 'b1' : db1, 'W2' : dW2, 'b2' : db2, 'W3' : dW3, 'b3' : db3]
 
         pass
 

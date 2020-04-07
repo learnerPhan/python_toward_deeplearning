@@ -34,7 +34,8 @@ def affine_forward(x, w, b):
     #print(x.shape)
     #print(x.reshape(N, D).shape)
     #print(w.shape)
-    out = x.dot(w) + b
+    X = x.reshape(N,D)
+    out = X.dot(w) + b
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
