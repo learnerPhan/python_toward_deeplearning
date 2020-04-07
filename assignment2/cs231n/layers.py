@@ -585,9 +585,12 @@ def conv_forward_naive(x, w, b, conv_param):
                 start_w = wi*stride
                 end_w = start_w + Wf
                 x_conv[i, h, wi, :] = x_pad[i, :, start_h:end_h, start_w:end_w].reshape(block_size)
+                # (outH, outW, block_size) 
 
     for f in range(F):
         out[:, f, : , :] = np.dot(x_conv, w_conv[f]) + b[f]
+        # (N, outH, outW) = (N, outH, outW, block_size).dot((1, block_size)) + (1,)
+        #                                              |--> (N, outH, outW, 1)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
