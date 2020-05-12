@@ -53,7 +53,7 @@ $ export SSL_CERT_DIR=/etc/ssl/certs
 ######################################################################
 ###### ImportError: /lib64/libm.so.6: version `GLIBC_2.23' not found ################################
 
-1. virtualenv -p python3 .t
+1. virtualenv -p python3 .tf
 2. source .tf/bin/activate
 
 #important set up environment for tensorflow
