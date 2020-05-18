@@ -39,8 +39,10 @@ def rnn_step_forward(x, prev_h, Wx, Wh, b):
     b2 = b[np.newaxis, :] # (1,H)
     temp1 = prev_h.dot(Wh) #(N,H) = (N,H)dot(H,H)
     temp2 = x.dot(Wx) #(N,H) = (N,D)dot(D,H)
-    next_h = np.tanh(temp1 + temp2 + b2)
-
+    arg = temp1 + temp2 + b2
+    next_h = np.tanh(arg)
+ 
+    cache = (next_h, prev_h, Wh, x, Wx)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -73,6 +75,20 @@ def rnn_step_backward(dnext_h, cache):
     # of the output value from tanh.                                             #
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    next_h, prev_h, Wh, x, Wx = cache
+
+    dnext_h_darg = 1 - next_h*next_h
+    darg = dnext_h*dnext_h_darg
+
+    dtemp1 = darg
+    dWh = prev_h.T.dot(dtemp1)
+    dprev_h = dtemp1.dot(Wh.T)
+
+    dtemp2 = darg
+    dx = np.dot(dtemp2, Wx.T)
+    dWx = x.T.dot(dtemp2)
+
+    db = darg.sum(axis=0)
 
     pass
 
