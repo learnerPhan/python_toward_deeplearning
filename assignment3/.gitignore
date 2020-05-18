@@ -1,0 +1,7 @@
+*.swp
+*.pyc
+.cs231n/*
+*/.ipynb_checkpoints/*
+
+# gitignore the built release.
+cs231n/datasets/coco_captioning
