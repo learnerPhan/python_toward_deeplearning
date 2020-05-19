@@ -125,6 +125,15 @@ def rnn_forward(x, h0, Wx, Wh, b):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    N, T, D = x.shape
+    H = Wh.shape[0]
+    h = np.zeros((N, T, H))
+    h[:,-1,:] = h0 #(N,H)
+    for i in range(T):
+        r_x = x[:,i,:] #(N,D)
+        r_h = h[:,i-1,:] #(N,H)
+        h[:,i,:],_ = rnn_step_forward(r_x, r_h, Wx, Wh, b)
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
