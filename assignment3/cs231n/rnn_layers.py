@@ -125,6 +125,7 @@ def rnn_forward(x, h0, Wx, Wh, b):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    cache = []
     N, T, D = x.shape
     H = Wh.shape[0]
     h = np.zeros((N, T, H))
@@ -132,7 +133,8 @@ def rnn_forward(x, h0, Wx, Wh, b):
     for i in range(T):
         r_x = x[:,i,:] #(N,D)
         r_h = h[:,i-1,:] #(N,H)
-        h[:,i,:],_ = rnn_step_forward(r_x, r_h, Wx, Wh, b)
+        h[:,i,:], cache_s = rnn_step_forward(r_x, r_h, Wx, Wh, b)
+        cache.append(cache_s)
 
     pass
 
@@ -169,6 +171,22 @@ def rnn_backward(dh, cache):
     # defined above. You can use a for loop to help compute the backward pass.   #
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    # get shape for dx
+    N, D = cache[0][3].shape
+
+    T = dh.shape[1]
+    dx = np.zeros((N,T,D))
+
+    dx[:,-1,:], dh_n, dWx, dWh, db = rnn_step_backward(dh[:,-1,:], cache[-1])
+
+    for i in range(1,T):
+        dx[:,-(i+1),:], dh_n, dWx_s, dWh_s, db_s = rnn_step_backward(dh_n + dh[:,-(i+1),:], cache[-(i+1)])
+        dWx += dWx_s
+        dWh += dWh_s
+        db += db_s
+   
+    dh0 = dh_n
 
     pass
 
