@@ -151,7 +151,32 @@ class CaptioningRNN(object):
         ############################################################################
         # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+        """
+        1. (1) image features --> initial hidden state (of shape (N, H))
+        2. argument features.shape = (N, D)  
+        """
+
+        print(features.shape)
+        print(W_proj.shape)
+        print(b_proj.shape)
+        h0 = features.dot(W_proj) + b_proj[np.newaxis,:]
+
+        # (2)
+        x, cache_wef = word_embedding_forward(captions_in, W_embed)
+        print(x.shape)
+
+        # (3)
+        h, cache_rnnf = rnn_forward(x, h0, Wx, Wh, b)
+        print(h.shape)
+
+        # (4)
+        scores, cache_taf = temporal_affine_forward(h, W_vocab, b_vocab)
+
+        # (5)
+        loss, dx = temporal_softmax_loss(scores, captions_out, mask, verbose=False)
+
         pass
+
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
         ############################################################################
