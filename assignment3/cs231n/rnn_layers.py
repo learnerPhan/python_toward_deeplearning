@@ -347,6 +347,20 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
     # You may want to use the numerically stable sigmoid implementation above.  #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    N,H = prev_h.shape
+
+    # activation vectore
+    activation = x.dot(Wx) + prev_h.dot(Wh) + b
+
+    # input gate, forget gate, output gate, block gate
+    i_gate = sigmoid(activation[:, 0:H])
+    f_gate = sigmoid(activation[:, H:2*H])
+    o_gate = sigmoid(activation[:, 2*H:3*H])
+    g_gate = np.tanh(activation[:, 3*H:4*H])
+
+    # next states
+    next_c = np.multiply(prev_c, f_gate) + np.multiply(i_gate, g_gate)
+    next_h = np.multiply(o_gate, np.tanh(next_c))
 
     pass
 
