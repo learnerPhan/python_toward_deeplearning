@@ -437,6 +437,22 @@ def lstm_forward(x, h0, Wx, Wh, b):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    cache = []
+    N, T, D = x.shape
+    H = h0.shape[1]
+
+    # preparation for the for-loop
+    h = np.zeros((N, T, H))
+    c = np.zeros((N, T, H))
+    h[:,-1,:] = h0
+
+    for t in range(T):
+        h[:,t,:], c[:,t,:], cache_step = lstm_step_forward(x[:, t,:], h[:,t-1,:], c[:, t-1,:], Wx, Wh, b)
+        #   ------------------                            ---------    ---------------------
+        #            |                                         |                |
+        #            |                                         |                |
+        #            |---------------> current state <---------|                |----> previous state
+        cache.append(cache_step)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
