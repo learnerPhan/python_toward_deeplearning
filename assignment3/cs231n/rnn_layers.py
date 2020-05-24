@@ -316,7 +316,34 @@ def sigmoid(x):
     z[neg_mask] = np.exp(x[neg_mask])
     top = np.ones_like(x)
     top[neg_mask] = z[neg_mask]
-    return top / (1 + z)
+    y = top / (1 + z)
+    cache = top, z, x # tuple
+    return y, cache
+
+def sigmoid_backward(dy, cache):
+    """
+    caculate derative of sigmoid
+    """
+    top, z, x = cache
+    pos_mask = x >= 0
+    neg_mask = x < 0
+
+    dy_dtop = 1/(1+z)
+    dy_dz = -top*dy_dtop**2
+    
+    dtop_dz = np.zeros_like(z)
+    dtop_dz[neg_mask] = np.ones_like(z[neg_mask])
+    
+    dy_dz = dy_dtop*dtop_dz
+
+    dz_dx = np.zeros_like(x)
+    dz_dx[pos_mask] = -z[pos_mask]
+    dz_dx[neg_mask] = z[neg_mask]
+
+    dy_dx = dy_dz*dz_dx
+
+    return dy_dx
+
 
 
 def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
@@ -348,20 +375,39 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     N,H = prev_h.shape
+    cache = ()
 
     # activation vectore
     activation = x.dot(Wx) + prev_h.dot(Wh) + b
+    cache_activ = x, Wx, prev_h, Wh
+    cache = cache + (cache_activ,)
 
     # input gate, forget gate, output gate, block gate
-    i_gate = sigmoid(activation[:, 0:H])
-    f_gate = sigmoid(activation[:, H:2*H])
-    o_gate = sigmoid(activation[:, 2*H:3*H])
+    i_gate, cache_sig_i = sigmoid(activation[:, 0:H])
+    # for backward later
+    # dg_dact = np.zeros((N, 4*H))
+    # digate_dact = sigmoid_backward(digate, cache_sig_i)*dai_dact[:,0:H]
+
+    f_gate, cache_sig_f = sigmoid(activation[:, H:2*H])
+    o_gate, cache_sig_o = sigmoid(activation[:, 2*H:3*H])
+    # (3)
     g_gate = np.tanh(activation[:, 3*H:4*H])
-
+    # backward for later
+    # dg_gate_da_g = 1 - g_gate**2
+    cache_sig_g = (g_gate,)
+    cache = cache + (cache_sig_i,)
+    cache = cache + (cache_sig_f,)
+    cache = cache + (cache_sig_o,)
+    cache = cache + (cache_sig_g,)
     # next states
+    # (2)
     next_c = np.multiply(prev_c, f_gate) + np.multiply(i_gate, g_gate)
+    # (1)
     next_h = np.multiply(o_gate, np.tanh(next_c))
-
+    cache_gate = i_gate, f_gate, o_gate, g_gate
+    cache = cache + (cache_gate,)
+    cache_c = (prev_c, next_c)
+    cache = cache + (cache_c,)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -397,6 +443,37 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     # the output value from the nonlinearity.                                   #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    cache_activ, cache_sig_i, cache_sig_f, cache_sig_o, cache_sig_g, cache_gate, cache_c = cache
+
+    prev_c, next_c = cache_c
+    i_gate, f_gate, o_gate, g_gate = cache_gate  
+    # (1)
+    # next_h = np.multiply(o_gate, np.tanh(next_c))
+    tanh_nextc = np.tanh(next_c)
+    dnexth_dogate = np.multiply(dnext_h, tanh_nextc)
+   
+    dnexth_dtemp = np.multiply(dnext_h, o_gate)
+    dnexth_dnextc = dnexth_dtemp*(1 - tanh_nextc**2)
+
+    # (2)
+    # next_c = np.multiply(prev_c, f_gate) + np.multiply(i_gate, g_gate)
+    dnextc_dprevc = np.multiply(dnext_c, f_gate)
+    dnextc_dfgate = np.multiply(dnext_c, prev_c)
+    dnextc_digate = np.multiply(dnext_c, g_gate)
+    dnextc_dggate = np.multiply(dnext_c, i_gate)
+
+    x, Wx, prev_h, Wh = cache_activ
+    N, H = x.shape
+    H = H<<2
+    dact = np.zeros_like(x)
+    # (3)
+    # g_gate = np.tanh(activation[:, 3*H:4*H])
+    dtemp = dact
+    dtemp[:, 3*H:4*H] = 1
+    dggate_dact = (1 - g_gate**2)*dtemp
+
+
+ 
 
     pass
 
@@ -448,7 +525,7 @@ def lstm_forward(x, h0, Wx, Wh, b):
 
     for t in range(T):
         h[:,t,:], c[:,t,:], cache_step = lstm_step_forward(x[:, t,:], h[:,t-1,:], c[:, t-1,:], Wx, Wh, b)
-        #   ------------------                            ---------    ---------------------
+        # ---------------                                   ---------    ---------------------
         #            |                                         |                |
         #            |                                         |                |
         #            |---------------> current state <---------|                |----> previous state
