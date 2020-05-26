@@ -378,17 +378,21 @@ def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
     cache = ()
 
     # activation vectore
+    # (7)
     activation = x.dot(Wx) + prev_h.dot(Wh) + b
     cache_activ = x, Wx, prev_h, Wh
     cache = cache + (cache_activ,)
 
     # input gate, forget gate, output gate, block gate
+    # (6)
     i_gate, cache_sig_i = sigmoid(activation[:, 0:H])
     # for backward later
     # dg_dact = np.zeros((N, 4*H))
     # digate_dact = sigmoid_backward(digate, cache_sig_i)*dai_dact[:,0:H]
 
+    # (5)
     f_gate, cache_sig_f = sigmoid(activation[:, H:2*H])
+    # (4)
     o_gate, cache_sig_o = sigmoid(activation[:, 2*H:3*H])
     # (3)
     g_gate = np.tanh(activation[:, 3*H:4*H])
@@ -463,17 +467,53 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     dnextc_dggate = np.multiply(dnext_c, i_gate)
 
     x, Wx, prev_h, Wh = cache_activ
-    N, H = x.shape
-    H = H<<2
-    dact = np.zeros_like(x)
+    N, H = prev_h.shape
+    dact = np.zeros((N, 4*H))
     # (3)
     # g_gate = np.tanh(activation[:, 3*H:4*H])
-    dtemp = dact
-    dtemp[:, 3*H:4*H] = 1
-    dggate_dact = (1 - g_gate**2)*dtemp
+    # dggate_dact
+    dact[:, 3*H:4*H] = (1 - g_gate**2)
 
+    # (4)
+    # o_gate, cache_sig_o = sigmoid(activation[:, 2*H:3*H])
+    # dogate_dact = dact
+    dact[:, 2*H:3*H] = (1 - o_gate**2)
 
- 
+    # (5)
+    # f_gate, cache_sig_f = sigmoid(activation[:, H:2*H])
+    # dfgate_dact = dact
+    dact[:, H:2*H] = (1 - f_gate**2)
+    
+    # (6)
+    # i_gate, cache_sig_i = sigmoid(activation[:, 0:H])
+    # digate_dact = dact
+    dact[:, 0:H] = (1 - i_gate**2)
+
+    # dnextc_dact
+    # next_c = np.multiply(prev_c, f_gate) + np.multiply(i_gate, g_gate)
+    dnextc_dact = np.zeros_like(dact)
+    dnextc_dact[:, 0:H] = dnextc_digate*dact[:, 0:H]
+    dnextc_dact[:, H:2*H] = dnextc_dfgate*dact[:, H:2*H]
+    dnextc_dact[:, 2*H:3*H] = dnextc_dggate*dact[:, 2*H:3*H]
+    dprev_c = np.multiply(dnext_c, f_gate)
+
+    # dnexth_dact
+    # next_h = np.multiply(o_gate, np.tanh(next_c))
+    dnexth_dact = dnextc_dact
+    dnexth_dact[:, 3*H:4*H] = dnexth_dogate*dact[:, 3*H:4*H] + dnexth_dnextc*dnextc_dact[:, 3*H:4*H]
+
+    dact = dnexth_dact + dnextc_dact
+
+    # (7)
+    # activation = x.dot(Wx) + prev_h.dot(Wh) + b
+    dx = dact.dot(Wx.T)
+    dprev_h = dact.dot(Wh.T)
+    dWx = x.T.dot(dact)
+    dWh = prev_h.T.dot(dact)
+    db = dact.sum(axis=0)
+
+    # dx, dprev_h, dprev_c, dWx, dWh, db
+
 
     pass
 
