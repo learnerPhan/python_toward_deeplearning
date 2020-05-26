@@ -317,34 +317,17 @@ def sigmoid(x):
     top = np.ones_like(x)
     top[neg_mask] = z[neg_mask]
     y = top / (1 + z)
-    cache = top, z, x # tuple
+    cache = y # tuple
     return y, cache
 
 def sigmoid_backward(dy, cache):
     """
     caculate derative of sigmoid
     """
-    top, z, x = cache
-    pos_mask = x >= 0
-    neg_mask = x < 0
+    y = cache
+    dx = dy*y*(1-y)
 
-    dy_dtop = 1/(1+z)
-    dy_dz = -top*dy_dtop**2
-    
-    dtop_dz = np.zeros_like(z)
-    dtop_dz[neg_mask] = np.ones_like(z[neg_mask])
-    
-    dy_dz = dy_dtop*dtop_dz
-
-    dz_dx = np.zeros_like(x)
-    dz_dx[pos_mask] = -z[pos_mask]
-    dz_dx[neg_mask] = z[neg_mask]
-
-    dy_dx = dy_dz*dz_dx
-
-    return dy_dx
-
-
+    return dx
 
 def lstm_step_forward(x, prev_h, prev_c, Wx, Wh, b):
     """
@@ -454,17 +437,20 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     # (1)
     # next_h = np.multiply(o_gate, np.tanh(next_c))
     tanh_nextc = np.tanh(next_c)
-    dnexth_dogate = np.multiply(dnext_h, tanh_nextc)
+    dogate = np.multiply(dnext_h, tanh_nextc)
    
     dnexth_dtemp = np.multiply(dnext_h, o_gate)
     dnexth_dnextc = dnexth_dtemp*(1 - tanh_nextc**2)
 
+    # dnext_c
+    dnext_c += dnexth_dnextc
+
     # (2)
     # next_c = np.multiply(prev_c, f_gate) + np.multiply(i_gate, g_gate)
-    dnextc_dprevc = np.multiply(dnext_c, f_gate)
-    dnextc_dfgate = np.multiply(dnext_c, prev_c)
-    dnextc_digate = np.multiply(dnext_c, g_gate)
-    dnextc_dggate = np.multiply(dnext_c, i_gate)
+    dprev_c = np.multiply(dnext_c, f_gate)
+    dfgate = np.multiply(dnext_c, prev_c)
+    digate = np.multiply(dnext_c, g_gate)
+    dggate = np.multiply(dnext_c, i_gate)
 
     x, Wx, prev_h, Wh = cache_activ
     N, H = prev_h.shape
@@ -472,37 +458,22 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     # (3)
     # g_gate = np.tanh(activation[:, 3*H:4*H])
     # dggate_dact
-    dact[:, 3*H:4*H] = (1 - g_gate**2)
+    dact[:, 3*H:4*H] = (1 - g_gate**2)*dggate
 
     # (4)
     # o_gate, cache_sig_o = sigmoid(activation[:, 2*H:3*H])
     # dogate_dact = dact
-    dact[:, 2*H:3*H] = (1 - o_gate**2)
+    dact[:, 2*H:3*H] = sigmoid_backward(dogate, cache_sig_o)
 
     # (5)
     # f_gate, cache_sig_f = sigmoid(activation[:, H:2*H])
     # dfgate_dact = dact
-    dact[:, H:2*H] = (1 - f_gate**2)
+    dact[:, H:2*H] = sigmoid_backward(dfgate, cache_sig_f)
     
     # (6)
     # i_gate, cache_sig_i = sigmoid(activation[:, 0:H])
     # digate_dact = dact
-    dact[:, 0:H] = (1 - i_gate**2)
-
-    # dnextc_dact
-    # next_c = np.multiply(prev_c, f_gate) + np.multiply(i_gate, g_gate)
-    dnextc_dact = np.zeros_like(dact)
-    dnextc_dact[:, 0:H] = dnextc_digate*dact[:, 0:H]
-    dnextc_dact[:, H:2*H] = dnextc_dfgate*dact[:, H:2*H]
-    dnextc_dact[:, 2*H:3*H] = dnextc_dggate*dact[:, 2*H:3*H]
-    dprev_c = np.multiply(dnext_c, f_gate)
-
-    # dnexth_dact
-    # next_h = np.multiply(o_gate, np.tanh(next_c))
-    dnexth_dact = dnextc_dact
-    dnexth_dact[:, 3*H:4*H] = dnexth_dogate*dact[:, 3*H:4*H] + dnexth_dnextc*dnextc_dact[:, 3*H:4*H]
-
-    dact = dnexth_dact + dnextc_dact
+    dact[:, 0:H] = sigmoid_backward(digate, cache_sig_i)
 
     # (7)
     # activation = x.dot(Wx) + prev_h.dot(Wh) + b
@@ -513,7 +484,6 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     db = dact.sum(axis=0)
 
     # dx, dprev_h, dprev_c, dWx, dWh, db
-
 
     pass
 
