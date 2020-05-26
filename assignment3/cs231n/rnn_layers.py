@@ -572,6 +572,37 @@ def lstm_backward(dh, cache):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    # get shape for dx
+    # N, D = cache[0][3].shape
+
+    # T = dh.shape[1]
+    # dx = np.zeros((N,T,D))
+
+    # dx[:,-1,:], dh_n, dWx, dWh, db = rnn_step_backward(dh[:,-1,:], cache[-1])
+
+    # for i in range(1,T):
+    #     dx[:,-(i+1),:], dh_n_2, dWx_s, dWh_s, db_s = rnn_step_backward(dh_n + dh[:,-(i+1),:], cache[-(i+1)])
+    #     dWx += dWx_s
+    #     dWh += dWh_s
+    #     db += db_s
+    #     dh_n = dh_n_2
+   
+    # dh0 = dh_n
+    # lstm_step_backward(dnext_h, dnext_c, cache):
+
+    N, T, H = dh.shape
+    D = cache[0][0][0].shape[1]
+    dx = np.zeros((N,T,D))
+    dnext_c = np.zeros((N,H))
+    dx[:,-1,:], dprev_h, dprev_c, dWx, dWh, db = lstm_step_backward(dh[:,-1,:], dnext_c, cache[-1])
+    for i in range(1,T):
+        dx[:,-(i+1),:], dprev_h_2, dprev_c, dWx_s, dWh_s, db_s = lstm_step_backward(dprev_h + dh[:,-(i+1),:], dprev_c, cache[-(i+1)])
+        dWx += dWx_s
+        dWh += dWh_s
+        db += db_s
+        dprev_h = dprev_h_2
+
+    dh0 = dprev_h
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
