@@ -430,6 +430,7 @@ def lstm_step_backward(dnext_h, dnext_c, cache):
     # the output value from the nonlinearity.                                   #
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
     cache_activ, cache_sig_i, cache_sig_f, cache_sig_o, cache_sig_g, cache_gate, cache_c = cache
 
     prev_c, next_c = cache_c
@@ -589,20 +590,24 @@ def lstm_backward(dh, cache):
    
     # dh0 = dh_n
     # lstm_step_backward(dnext_h, dnext_c, cache):
-
     N, T, H = dh.shape
     D = cache[0][0][0].shape[1]
     dx = np.zeros((N,T,D))
-    dnext_c = np.zeros((N,H))
-    dx[:,-1,:], dprev_h, dprev_c, dWx, dWh, db = lstm_step_backward(dh[:,-1,:], dnext_c, cache[-1])
-    for i in range(1,T):
-        dx[:,-(i+1),:], dprev_h_2, dprev_c, dWx_s, dWh_s, db_s = lstm_step_backward(dprev_h + dh[:,-(i+1),:], dprev_c, cache[-(i+1)])
+    dprev_c = np.zeros((N,H))
+    dprev_h = np.zeros((N,H))
+    dWx = np.zeros((D, 4*H))
+    dWh = np.zeros((H, 4*H))
+    db = np.zeros((4*H,))
+    # dx[:,-1,:], dprev_h, dprev_c, dWx, dWh, db = lstm_step_backward(dh[:,-1,:], dnext_c, cache[-1])
+    for i in range(0,T):
+        dx[:,-(i+1),:], dprev_h, dprev_c, dWx_s, dWh_s, db_s = lstm_step_backward(dprev_h + dh[:,-(i+1),:], dprev_c, cache[-(i+1)])
         dWx += dWx_s
         dWh += dWh_s
         db += db_s
-        dprev_h = dprev_h_2
+        # dprev_h = dprev_h_2
 
     dh0 = dprev_h
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
