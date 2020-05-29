@@ -73,16 +73,30 @@ def content_loss(content_weight, content_current, content_original):
     Inputs:
     - content_weight: scalar constant we multiply the content_loss by.
     - content_current: features of the current image, Tensor with shape [1, height, width, channels]
-    - content_target: features of the content image, Tensor with shape [1, height, width, channels]
+    - content_original: features of the content image, Tensor with shape [1, height, width, channels]
 
     Returns:
     - scalar content loss
     """
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    hc, wc, cc = tf.shape(content_current)[1:]
+    ht, wt, ct = tf.shape(content_original)[1:]
 
+    cur_new = tf.reshape(content_current, (-1,cc))
+    targ_new = tf.reshape(content_original, (-1,ct))
+
+    # print(tf.shape(cur_new))
+    # print(tf.shape(targ_new))
+
+    # content_l = np.sum((cur_new - targ_new)**2)
+    # tf way to do such task (np.sum)
+    content_l = tf.reduce_sum((cur_new - targ_new)**2, [0,1])
+    content_l *= content_weight
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    return content_l
 
 # We provide this helper code which takes an image, a model (cnn), and returns a list of
 # feature maps, one per layer.
