@@ -15,10 +15,22 @@ def tv_loss(img, tv_weight):
     """
     # Your implementation should be vectorized and not require any loops!
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    H, W = tf.shape(img)[1:3]
+    # Be careful with slice in python
+    # H ---> range of indices [0, H-1]
+    # Here we want the first to be   from 1 to H-1,
+    #              the second to be  from 0 to H-2
+    # And because in python writting [a:b] means from a to b-1
+    # So we end up with the first  is [1:H]
+    # and               the second is [0:H-1]
+    
+    loss = tf.reduce_sum((img[:,1:H,:,:] - img[:,0:H-1,:,:])**2)
+    loss += tf.reduce_sum((img[:,:,1:W,:] - img[:,:,0:W-1,:])**2)
+    loss *= tv_weight
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    return loss
 
 def style_loss(feats, style_layers, style_targets, style_weights):
     """
