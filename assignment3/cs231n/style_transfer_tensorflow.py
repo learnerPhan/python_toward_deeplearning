@@ -42,9 +42,20 @@ def style_loss(feats, style_layers, style_targets, style_weights):
     # not be short code (~5 lines). You will need to use your gram_matrix function.
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    style_loss = 0
+    i = 0;
+    for idx in style_layers:
+        style_cur = gram_matrix(feats[idx], normalize=True) 
+        dif = style_cur - style_targets[i]
+        dif_sqr = dif**2
+        loss_layer = tf.reduce_sum(dif_sqr) * style_weights[i]
+        style_loss += loss_layer
+        i = i + 1
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    return style_loss
 
 def gram_matrix(features, normalize=True):
     """
@@ -61,10 +72,20 @@ def gram_matrix(features, normalize=True):
       Gram matrices for the input image.
     """
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    #get the dims
+    # flatten
+    H, W, C = tf.shape(features)[1:]
+    flat_feature = tf.reshape(features, (H*W, C))
+
+    gram = tf.matmul(tf.transpose(flat_feature), flat_feature)
+    if (normalize==True):
+        norm = tf.cast(H*W*C, tf.float32)
+        gram = gram/norm
 
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    return gram
 
 def content_loss(content_weight, content_current, content_original):
     """
@@ -79,8 +100,8 @@ def content_loss(content_weight, content_current, content_original):
     - scalar content loss
     """
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    hc, wc, cc = tf.shape(content_current)[1:]
-    ht, wt, ct = tf.shape(content_original)[1:]
+    cc = tf.shape(content_current)[-1]
+    ct = tf.shape(content_original)[-1]
 
     cur_new = tf.reshape(content_current, (-1,cc))
     targ_new = tf.reshape(content_original, (-1,ct))
