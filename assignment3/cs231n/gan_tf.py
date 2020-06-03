@@ -96,7 +96,7 @@ def discriminator(seed=None):
 
     model = tf.keras.Sequential(layers)
 
-   pass
+    pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
@@ -123,6 +123,13 @@ def generator(noise_dim=NOISE_DIM, seed=None):
     # HINT: tf.keras.models.Sequential might be helpful.                         #
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    layers = [tf.keras.layers.Dense(units=1024, input_shape=(noise_dim,), activation='relu'),
+              tf.keras.layers.Dense(units=1024, input_shape=(1024,), activation='relu'),
+              tf.keras.layers.Dense(units=784, activation=tf.nn.tanh)
+             ]
+
+    model = tf.keras.Sequential(layers)
 
     pass
 
