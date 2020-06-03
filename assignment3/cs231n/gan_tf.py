@@ -37,10 +37,11 @@ def sample_noise(batch_size, dim, seed=None):
         tf.random.set_seed(seed)
     # TODO: sample and return noise
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-
+    noise = tf.random.uniform(shape=(batch_size, dim), minval=-1, maxval=1, dtype=tf.dtypes.float32)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    return noise
     
 def discriminator(seed=None):
     """Compute discriminator score for a batch of input images.
@@ -63,7 +64,39 @@ def discriminator(seed=None):
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    pass
+    """
+    Reminder how to build model:
+    1, Create layers list with the help of tf.keras.layers
+        layers = [ tf.keras.layers.xx(params),
+                   layer2,
+                   ...
+                 ]
+    2, Build model with the above layers :
+        model = tf.keras.Sequential(layers)
+    """
+
+    # first try : it works
+    # So I need to soecify input_shape to solve error no weights
+    """
+    model = tf.keras.Sequential()
+    model.add(tf.keras.layers.Dense(units=256, input_shape=(784,), activation=leaky_relu,
+                                    use_bias=True))
+    model.add(tf.keras.layers.Dense(units=256, input_shape=(256,), activation=leaky_relu,
+                                    use_bias=True))
+    model.add(tf.keras.layers.Dense(units=1, use_bias=True))
+    """
+    # second try : it works
+    # still need input_shape
+    layers = [tf.keras.layers.Dense(units=256, input_shape=(784,), activation=leaky_relu,
+                                    use_bias=True),
+              tf.keras.layers.Dense(units=256, input_shape=(256,), activation=leaky_relu,
+                                    use_bias=True),
+              tf.keras.layers.Dense(units=1, use_bias=True)
+             ]
+
+    model = tf.keras.Sequential(layers)
+
+   pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
     ##############################################################################
