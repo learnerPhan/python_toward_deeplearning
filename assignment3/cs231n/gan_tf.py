@@ -16,9 +16,12 @@ def leaky_relu(x, alpha=0.01):
     # TODO: implement leaky ReLU
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    pos = tf.maximum(x, 0.0)
+    neg = alpha*tf.minimum(x, 0.0)
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    return pos + neg
     
 def sample_noise(batch_size, dim, seed=None):
     """Generate random uniform noise from -1 to 1.
