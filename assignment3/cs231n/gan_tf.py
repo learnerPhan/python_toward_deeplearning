@@ -192,12 +192,10 @@ def generator_loss(logits_fake):
     """
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
-    label_fake = tf.zeros_like(logits_fake)
+    label_fake = tf.ones_like(logits_fake)
 
-    bce = tf.keras.losses.BinaryCrossentropy()
-    loss = bce(label_fake, logits_fake)
-    loss = loss.numpy()
-
+    gen = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits_fake, labels=label_fake)
+    loss = tf.reduce_mean(gen)
 
     pass
 
