@@ -247,6 +247,8 @@ def ls_discriminator_loss(scores_real, scores_fake):
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    loss = 0.5*tf.reduce_mean((scores_real-1)**2) + 0.5*tf.reduce_mean((scores_fake)**2)
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -264,6 +266,8 @@ def ls_generator_loss(scores_fake):
     """
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    loss = 0.5*tf.reduce_mean((scores_fake-1)**2)
 
     pass
 
