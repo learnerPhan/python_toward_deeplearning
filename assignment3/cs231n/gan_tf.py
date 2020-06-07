@@ -218,6 +218,15 @@ def get_solvers(learning_rate=1e-3, beta1=0.5):
     D_solver = None
     G_solver = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    D_solver = tf.keras.optimizers.Adam(
+                learning_rate=learning_rate,
+                beta_1=beta1
+               )
+
+    G_solver = tf.keras.optimizers.Adam(
+                learning_rate=learning_rate,
+                beta_1=beta1
+               )
 
     pass
 
