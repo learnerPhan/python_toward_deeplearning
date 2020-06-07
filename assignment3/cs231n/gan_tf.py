@@ -152,6 +152,28 @@ def discriminator_loss(logits_real, logits_fake):
     """
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    
+    # My answer which make use of BinaryCrossentropy as suggested but wrong due to my not know how to use
+    """
+    # generate labels : real = ones, fake = zeros
+    label_real = tf.ones_like(logits_real)
+    label_fake = tf.zeros_like(logits_fake)
+
+    # caculate losses using tf.keras.losses.BinaryCrossentropy
+    bce = tf.keras.losses.BinaryCrossentropy(from_logits=True, reduction=tf.keras.losses.Reduction.NONE) 
+    loss_real = bce(logits_real, label_real)
+    loss_fake = bce(logits_fake, label_fake)
+
+    loss = tf.reduce_mean(loss_real) + tf.reduce_mean(loss_fake)
+
+    """
+
+    # stolen idea of 
+    # https://github.com/jariasf/CS231n/blob/master/assignment3/GANs-TensorFlow.ipynb
+    Dx = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits_real, labels=tf.ones_like(logits_real))
+    DGx = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits_fake, labels=tf.zeros_like(logits_fake))
+    # Gx = tf.nn.sigmoid_cross_entropy_with_logits(logits=logits_fake, labels=tf.ones_like(logits_fake))
+    loss = tf.reduce_mean(Dx) + tf.reduce_mean(DGx)
 
     pass
 
@@ -170,6 +192,12 @@ def generator_loss(logits_fake):
     """
     loss = None
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    label_fake = tf.zeros_like(logits_fake)
+
+    bce = tf.keras.losses.BinaryCrossentropy()
+    loss = bce(label_fake, logits_fake)
+    loss = loss.numpy()
+
 
     pass
 
