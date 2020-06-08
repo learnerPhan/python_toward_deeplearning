@@ -319,8 +319,16 @@ def dc_discriminator():
 
     3. Our input shape is (N,H,W,C) = (N,28,28,1)
     """
-    # make layer in architecture
-    input_shape = (28,28,1)
+    # build model
+    model = tf.keras.Sequential()
+    # make layer in architecture then add each in model
+    reshape =   tf.keras.layers.Reshape(
+                  input_shape=(784,),
+                  target_shape=(28,28,1)
+                )
+    model.add(reshape)
+
+    # input_shape = (28,28,1)
     conv1_relu = tf.keras.layers.Conv2D(
                     filters=32,
                     kernel_size=5,
@@ -329,14 +337,16 @@ def dc_discriminator():
                     padding='valid',
                     use_bias=True,
                     bias_initializer='zeros',
-                    input_shape=input_shape
+                    # input_shape=input_shape
                 )
+    model.add(conv1_relu)
 
     maxpool1 =   tf.keras.layers.MaxPool2D(
                     pool_size=2,
                     strides=2,
                     padding='valid'
                 )
+    model.add(maxpool1)
  
     conv2_relu = tf.keras.layers.Conv2D(
                     filters=64,
@@ -347,14 +357,17 @@ def dc_discriminator():
                     use_bias=True,
                     bias_initializer='zeros'
                 )
+    model.add(conv2_relu)
 
     maxpool2 =   tf.keras.layers.MaxPool2D(
                     pool_size=2,
                     strides=2,
                     padding='valid'
                 )
+    model.add(maxpool2)
 
     flat = tf.keras.layers.Flatten()
+    model.add(flat)
 
     fc1_relu =   tf.keras.layers.Dense(
                     units=4*4*64,
@@ -362,29 +375,17 @@ def dc_discriminator():
                     use_bias=True,
                     bias_initializer='zeros'
                 )
+    model.add(fc1_relu)
 
     fc2 =   tf.keras.layers.Dense(
                     units=1,
                     use_bias=True,
                     bias_initializer='zeros'
                 )
+    model.add(fc2)
 
-    # stack layer
-    layers =    [conv1_relu,
-                 maxpool1,
-                 conv2_relu,
-                 maxpool2,
-                 flat,
-                 fc1_relu,
-                 fc2
-                ]
-
-    # build model
-    model = tf.keras.Sequential(layers)
-    # model = model(784)
-    model.summary()
-
-
+    # for debug
+    # model.summary()
 
     pass
 
@@ -407,6 +408,74 @@ def dc_generator(noise_dim=NOISE_DIM):
     model = tf.keras.models.Sequential()
     # TODO: implement architecture
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+    """
+    Reminder:
+    1. Architecture
+        Fully connected with output size 1024
+        ReLU
+        BatchNorm
+        Fully connected with output size 7 x 7 x 128
+        ReLU
+        BatchNorm
+        Resize into Image Tensor of size 7, 7, 128
+        Conv2D^T (transpose): 64 filters of 4x4, stride 2
+        ReLU
+        BatchNorm
+        Conv2d^T (transpose): 1 filter of 4x4, stride 2
+        TanH
+    """
+    # build model
+    model = tf.keras.Sequential()
+
+    # add layers
+    fc1_relu =  tf.keras.layers.Dense(
+                  units=1024,
+                  use_bias=True,
+                  activation='relu',
+                  input_shape=(noise_dim,)
+                )
+    model.add(fc1_relu)
+
+    bn1 =   tf.keras.layers.BatchNormalization()
+    model.add(bn1)
+
+    fc2_relu =  tf.keras.layers.Dense(
+                  units=7*7*128,
+                  use_bias=True,
+                  activation='relu'
+                )
+    model.add(fc2_relu)
+
+    bn2 =   tf.keras.layers.BatchNormalization()
+    model.add(bn2)
+
+    reshape = tf.keras.layers.Reshape(target_shape=(7,7,128))
+    model.add(reshape)
+
+    convT1_relu =   tf.keras.layers.Conv2DTranspose(
+                      filters=64,
+                      kernel_size=4,
+                      strides=2,
+                      padding='same',
+                      use_bias=True,
+                      activation='relu'
+                    )
+    model.add(convT1_relu)
+
+    bn3 = tf.keras.layers.BatchNormalization()
+    model.add(bn3)
+
+    convT2_relu =   tf.keras.layers.Conv2DTranspose(
+                      filters=1,
+                      kernel_size=4,
+                      strides=2,
+                      padding='same',
+                      activation='tanh'
+                    )
+    model.add(convT2_relu)
+
+    # for debug
+    # model.summary()
 
     pass
 
