@@ -292,6 +292,100 @@ def dc_discriminator():
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    """
+    Reminder :
+    1. How to build model
+       a. Build layers with tf.keras.layers.X
+           E.g : layer_conv = tf.keras.layers.Conv2D(parameters)
+       b. Build model with tf.keras.Sequential(layers)
+
+    2. Common layers
+        2.1 Conv2D + relu
+            tf.keras.layers.Conv2D(
+              filters=32,
+              kernel_size=(5,5),
+              activation="relu"
+            )
+
+        2.2 Faltten
+            tf.keras.layers.Flatten()
+
+        2.3 Fully connected + relu
+            tf.keras.layers.Dense(
+              units=32,
+              activation = "relu",
+              use_bias=True
+            )
+
+    3. Our input shape is (N,H,W,C) = (N,28,28,1)
+    """
+    # make layer in architecture
+    input_shape = (28,28,1)
+    conv1_relu = tf.keras.layers.Conv2D(
+                    filters=32,
+                    kernel_size=5,
+                    activation=leaky_relu,
+                    strides=1,
+                    padding='valid',
+                    use_bias=True,
+                    bias_initializer='zeros',
+                    input_shape=input_shape
+                )
+
+    maxpool1 =   tf.keras.layers.MaxPool2D(
+                    pool_size=2,
+                    strides=2,
+                    padding='valid'
+                )
+ 
+    conv2_relu = tf.keras.layers.Conv2D(
+                    filters=64,
+                    kernel_size=5,
+                    activation=leaky_relu,
+                    strides=1,
+                    padding='valid',
+                    use_bias=True,
+                    bias_initializer='zeros'
+                )
+
+    maxpool2 =   tf.keras.layers.MaxPool2D(
+                    pool_size=2,
+                    strides=2,
+                    padding='valid'
+                )
+
+    flat = tf.keras.layers.Flatten()
+
+    fc1_relu =   tf.keras.layers.Dense(
+                    units=4*4*64,
+                    activation=leaky_relu,
+                    use_bias=True,
+                    bias_initializer='zeros'
+                )
+
+    fc2 =   tf.keras.layers.Dense(
+                    units=1,
+                    use_bias=True,
+                    bias_initializer='zeros'
+                )
+
+    # stack layer
+    layers =    [conv1_relu,
+                 maxpool1,
+                 conv2_relu,
+                 maxpool2,
+                 flat,
+                 fc1_relu,
+                 fc2
+                ]
+
+    # build model
+    model = tf.keras.Sequential(layers)
+    # model = model(784)
+    model.summary()
+
+
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
