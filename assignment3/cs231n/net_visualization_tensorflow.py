@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from scipy.ndimage.filters import gaussian_filter1d
+from cs231n.classifiers.squeezenet import SqueezeNet
 
 def compute_saliency_maps(X, y, model):
     """
@@ -34,6 +35,25 @@ def compute_saliency_maps(X, y, model):
     # 4) Finally, process the returned gradient to compute the saliency map.      #
     ###############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    # 1) define a gradient tape and watch input images
+    with tf.GradientTape() as tape:
+        Xtf = tf.convert_to_tensor(X)
+        tape.watch(Xtf)
+
+        # 2) compute the loss
+        # get the scores output by the model
+        scores = model(Xtf)
+        # get correct scores
+        correct_scores = tf.gather_nd(scores, tf.stack((tf.range(X.shape[0]), y), axis=1))
+
+        # 3) use gradient() method of the gradient tape method
+        dscores_dXtf = tape.gradient(correct_scores, Xtf)
+
+        # 4) compute the saliency map
+        abs_gradient = tf.math.abs(dscores_dXtf)
+        saliency_tf = tf.math.reduce_max(abs_gradient, axis=3, keepdims=False)
+        saliency = saliency_tf.numpy()
 
     pass
 
