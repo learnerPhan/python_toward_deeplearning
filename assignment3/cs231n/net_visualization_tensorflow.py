@@ -87,7 +87,7 @@ def make_fooling_image(X, target_y, model):
     ##############################################################################
     # TODO: Generate a fooling image X_fooling that the model will classify as   #
     # the class target_y. Use gradient *ascent* on the target class score, using #
-    # the model.scores Tensor to get the class scores for the model.image.   #
+    # the model.scores Tensor to get the class scores for the model.image.       #
     # When computing an update step, first normalize the gradient:               #
     #   dX = learning_rate * g / ||g||_2                                         #
     #                                                                            #
@@ -103,6 +103,26 @@ def make_fooling_image(X, target_y, model):
     # progress over iterations to check your algorithm.                          #
     ##############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    # A boolean variable that if True, the model is not fooled yet, so we need continue the update
+    continue_update = True
+
+    # initialize the variation needed to add into X_fooling
+    # All what while() all about is updating that variable
+    dcorrectscores_dXf = tf.ones_like(X_fooling)
+
+    while(continue_update != False):
+        X_fooling += dcorrectscores_dXf
+        with tf.GradientTape() as tap:
+            tap.watch(X_fooling)
+            scores = model(X_fooling)
+            predict = tf.math.argmax(scores[0])
+            not_fooled_yet = predict.numpy() != target_y
+            if(not_fooled_yet):
+                correct_score = scores[0][target_y]
+                dcorrectscores_dXf = tap.gradient(correct_score, X_fooling)
+            else:
+                continue_update = False
 
     pass
 
