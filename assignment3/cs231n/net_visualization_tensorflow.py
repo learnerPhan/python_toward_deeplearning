@@ -145,6 +145,14 @@ def class_visualization_update_step(X, model, target_y, l2_reg, learning_rate):
     ########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
+    with tf.GradientTape() as tape:
+        tape.watch(X)
+        scores = model(X)
+        correct_score = scores[0][target_y]
+        dif = correct_score - l2_reg
+        ddif_dX = learning_rate*tape.gradient(dif, X)
+        X += ddif_dX
+
     pass
 
     # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
