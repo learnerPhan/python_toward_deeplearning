@@ -121,6 +121,8 @@ def make_fooling_image(X, target_y, model):
             if(not_fooled_yet):
                 correct_score = scores[0][target_y]
                 dcorrectscores_dXf = tap.gradient(correct_score, X_fooling)
+                norm = tf.norm(dcorrectscores_dXf, ord='euclidean')
+                dcorrectscores_dXf = dcorrectscores_dXf*learning_rate/norm
             else:
                 continue_update = False
 
