@@ -137,7 +137,8 @@ class ThreeLayerConvNet(object):
         # cache = (conv_cache, relu_cache, pool_cache)
         out, a_r_cache = affine_relu_forward(out, W2, b2)
         # cache = (fc_cache, relu_cache)
-        scores, a_r_cache2 = affine_relu_forward(out, W3, b3)
+        # scores, a_r_cache2 = affine_relu_forward(out, W3, b3)
+        scores, a_r_cache2 = affine_forward(out, W3, b3)
         # cache = (fc_cache, relu_cache)
 
         pass
@@ -173,7 +174,7 @@ class ThreeLayerConvNet(object):
         loss = reg_loss + data_loss
 
 
-        dout, dW3, db3 = affine_relu_backward(dout, a_r_cache2)
+        dout, dW3, db3 = affine_backward(dout, a_r_cache2)
         dout, dW2, db2 = affine_relu_backward(dout, a_r_cache)
         dout, dW1, db1 = conv_relu_pool_backward(dout, c_r_p_cache)
 
