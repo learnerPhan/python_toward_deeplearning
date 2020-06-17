@@ -163,7 +163,10 @@ class CaptioningRNN(object):
         x, cache_wef = word_embedding_forward(captions_in, W_embed)
 
         # (3)
-        h, cache_rnnf = rnn_forward(x, h0, Wx, Wh, b)
+        if self.cell_type == 'rnn':
+            h, cache_cell_f = rnn_forward(x, h0, Wx, Wh, b)
+        if self.cell_type == 'lstm':
+            h, cache_cell_f = lstm_forward(x, h0, Wx, Wh, b)
 
         # (4)
         scores, cache_taf = temporal_affine_forward(h, W_vocab, b_vocab)
@@ -177,7 +180,10 @@ class CaptioningRNN(object):
         dh, grads["W_vocab"], grads["b_vocab"] = temporal_affine_backward(dx, cache_taf)
 
         # (3) backward
-        dx, dh0, grads["Wx"], grads["Wh"], grads["b"] = rnn_backward(dh, cache_rnnf)
+        if self.cell_type == 'rnn':
+            dx, dh0, grads["Wx"], grads["Wh"], grads["b"] = rnn_backward(dh, cache_cell_f)
+        if self.cell_type == 'lstm':
+            dx, dh0, grads["Wx"], grads["Wh"], grads["b"] = lstm_backward(dh, cache_cell_f)
 
         # (2) backward
         grads["W_embed"] = word_embedding_backward(dx, cache_wef)
