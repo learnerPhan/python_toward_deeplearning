@@ -1,6 +1,6 @@
 *.swp
 *.pyc
-.cs231n/*
+.tf/*
 */.ipynb_checkpoints/*
 
 # gitignore the built release.
