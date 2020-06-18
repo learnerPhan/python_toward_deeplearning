@@ -157,8 +157,6 @@ class TwoLayerNet(object):
         sum_exp_vec = np.sum(exp_scores, axis=1).reshape(exp_scores.shape[0],1)
         softmax_mat = exp_scores/sum_exp_vec
 
-        #print('fc_net.py')
-        #print(y.dtype)
         #y = y.astype(int)
         L_images = np.log(softmax_mat[np.arange(N), y.astype(int)])
 
@@ -256,10 +254,7 @@ class FullyConnectedNet(object):
         w_keys = [string_w + str(i) for i in range(1, self.num_layers + 1)]
         string_b = 'b'
         b_keys = [string_b + str(i) for i in range(1, self.num_layers + 1)]
-        print(w_keys)
-        print(b_keys)
 
-        # print(hidden_dims)
         # add input_dim at the begin of list hidden_dim
         temp_1 = hidden_dims[::-1] + [input_dim]
         temp_1 = temp_1[::-1]
@@ -267,14 +262,9 @@ class FullyConnectedNet(object):
         temp_2 = hidden_dims + [num_classes]
 
         temp = list(zip(temp_1, temp_2))
-        print(temp)
 
         list_w = list(zip(w_keys, temp))
         list_b = list(zip(b_keys, temp_2))
-
-        # print(list_w)
-        # print(list_b)
-
         for key, size in list_w:
             self.params[key] = np.random.normal(loc=0.0, scale=weight_scale, size=size)
 
@@ -354,8 +344,6 @@ class FullyConnectedNet(object):
         b_keys = ['b' + str(i) for i in range(1, self.num_layers + 1)]
         b_vals = [self.params[key] for key in b_keys]
 
-        # print(w_vals)
-        # print(b_vals)
         out = X
         outs = []
         caches = []
@@ -398,9 +386,6 @@ class FullyConnectedNet(object):
         sum_exp_vec = np.sum(exp_scores, axis=1).reshape(exp_scores.shape[0],1)
         softmax_mat = exp_scores/sum_exp_vec
 
-        #print('fc_net.py')
-        #print(y.dtype)
-        #y = y.astype(int)
         N = X.shape[0]
         L_images = np.log(softmax_mat[np.arange(N), y.astype(int)])
 
