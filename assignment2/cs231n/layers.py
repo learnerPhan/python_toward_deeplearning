@@ -243,6 +243,8 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         """
         running_mean = momentum * running_mean + (1 - momentum) * sample_mean
         running_var = momentum * running_var + (1 - momentum) * sample_var
+        cache = (x, sample_mean, x_norm, gamma)
+
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
@@ -276,7 +278,13 @@ def batchnorm_forward(x, gamma, beta, bn_param):
     bn_param['running_mean'] = running_mean
     bn_param['running_var'] = running_var
 
+
     return out, cache
+
+def mean_bw(dmean, cache):
+    shape = cache
+    N = shape(0)
+    return (1/N)*np.ones_like(shape)*dmean
 
 
 def batchnorm_backward(dout, cache):
@@ -304,6 +312,49 @@ def batchnorm_backward(dout, cache):
     # might prove to be helpful.                                              #
     ###########################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
+
+    # unpack
+    x, mean, x_norm, gamma = cache
+    N,D = x.shape
+
+    # backward of out = gamma*x_norm + beta
+    # dbeta
+    dbeta = dout.sum(axis=0)
+    # dgamma
+    dgamma = np.sum(dout*x_norm, axis=0)
+    # dx_norm
+    dx_norm = dout*gamma
+
+    # break down numpy.var into smaller computations
+    # for more easily performing backward
+    sub = x - mean
+    # print('sub.shape : ', sub.shape)
+    abs_sub = np.absolute(sub)
+    # print(abs_sub.shape)
+    sqrt_var = np.sqrt(np.mean(abs_sub**2, axis=0))
+    # print(sqrt_var.shape)
+    i_sqrt_var = 1/sqrt_var
+    # print(i_sqrt_var.shape)
+
+    # backward
+    dsub1 = dx_norm*i_sqrt_var
+
+    di_sqrt_var = (dx_norm*sub).sum(axis=0)
+    dsqrt_var = -di_sqrt_var/(sqrt_var**2)
+    dvar = dsqrt_var/(2*sqrt_var)
+    dabs_sub = dvar*(2*abs_sub)/N
+
+    # derivative of absolute operator
+    indices = np.where(sub<0)
+
+    dsub2 = dabs_sub
+    dsub2[indices] *= -1
+
+    dsub = dsub1 + dsub2
+
+    dmean = dsub.sum(axis=0)
+    dx = np.ones_like(x)*(-dmean)/N
+    dx += dsub
 
     pass
 
