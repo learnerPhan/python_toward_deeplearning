@@ -243,7 +243,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         """
         running_mean = momentum * running_mean + (1 - momentum) * sample_mean
         running_var = momentum * running_var + (1 - momentum) * sample_var
-        cache = (x, sample_mean, x_norm, gamma)
+        cache = (x, sample_mean, eps, x_norm, gamma)
 
         pass
 
@@ -314,7 +314,7 @@ def batchnorm_backward(dout, cache):
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
     # unpack
-    x, mean, x_norm, gamma = cache
+    x, mean, eps, x_norm, gamma = cache
     N,D = x.shape
 
     # backward of out = gamma*x_norm + beta
@@ -331,7 +331,7 @@ def batchnorm_backward(dout, cache):
     # print('sub.shape : ', sub.shape)
     abs_sub = np.absolute(sub)
     # print(abs_sub.shape)
-    sqrt_var = np.sqrt(np.mean(abs_sub**2, axis=0))
+    sqrt_var = np.sqrt(np.mean(abs_sub**2, axis=0) + eps)
     # print(sqrt_var.shape)
     i_sqrt_var = 1/sqrt_var
     # print(i_sqrt_var.shape)
