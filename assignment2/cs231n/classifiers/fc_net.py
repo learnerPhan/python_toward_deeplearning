@@ -166,7 +166,6 @@ class TwoLayerNet(object):
 
         pass
 
-
         softmax_mat[np.arange(N), y] -= 1
         dReLU, dW2, db2 = affine_backward(softmax_mat, cache_fc_2)
         dfc1 = relu_backward(dReLU, cache_relu)
@@ -347,11 +346,21 @@ class FullyConnectedNet(object):
         out = X
         outs = []
         caches = []
-        for i in range(self.num_layers):
-            out, cache = affine_relu_forward(out, w_vals[i], b_vals[i])
-            outs.append(out)
-            caches.append(cache)
 
+        # if self.normalization=='batchnorm':
+        if self.normalization==None:
+            for i in range(self.num_layers):
+                out, cache = affine_relu_forward(out, w_vals[i], b_vals[i])
+                outs.append(out)
+                caches.append(cache)
+
+        if self.normalization=='batchnorm':
+            for i in range(self.num_layers):
+                gamma = np.random.randn(self.hidden_dims[i])
+                beta = np.random.randn(self.hidden_dims[i])
+                out, cache = affine_bn_relu_forward(out, w_vals[i], b_vals[i], gamma, beta, self.bn_params[i])
+                outs.append(out)
+                caches.append(cache)
         scores = outs[-1]
 
         pass
@@ -406,10 +415,23 @@ class FullyConnectedNet(object):
         dbs = []
 
         dout = softmax_mat
-        for i in range(self.num_layers):
-            dout, dw, db = affine_relu_backward(dout, rev_caches[i])
-            dws.append(dw)
-            dbs.append(db)
+
+        if self.normalization==None:
+            for i in range(self.num_layers):
+                dout, dw, db = affine_relu_backward(dout, rev_caches[i])
+                dws.append(dw)
+                dbs.append(db)
+
+        if self.normalization=='batchnorm':
+            dgammas = []
+            dbetas = []
+            for i in range(self.num_layers):
+                dout, dw, db, dgamma, dbeta = affine_bn_relu_backward(dout, rev_caches[i])
+                dws.append(dw)
+                dbs.append(db)
+                dgammas.append(dgamma)
+                dbetas.append(dbeta)
+
 
         dws.reverse()
         dbs.reverse()

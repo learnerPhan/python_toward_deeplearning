@@ -127,7 +127,6 @@ def relu_forward(x):
     cache = x
     return out, cache
 
-
 def relu_backward(dout, cache):
     """
     Computes the backward pass for a layer of rectified linear units (ReLUs).
@@ -188,7 +187,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
       - eps: Constant for numeric stability
       - momentum: Constant for running mean / variance.
       - running_mean: Array of shape (D,) giving running mean of features
-      - running_var Array of shape (D,) giving running variance of features
+      - running_var: Array of shape (D,) giving running variance of features
 
     Returns a tuple of:
     - out: of shape (N, D)
@@ -285,7 +284,6 @@ def mean_bw(dmean, cache):
     shape = cache
     N = shape(0)
     return (1/N)*np.ones_like(shape)*dmean
-
 
 def batchnorm_backward(dout, cache):
     """
