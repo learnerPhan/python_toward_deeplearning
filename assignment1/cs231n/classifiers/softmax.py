@@ -100,16 +100,16 @@ def softmax_loss_vectorized(W, X, y, reg):
     #############################################################################
     # *****START OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
 
-    print(W.shape)
+    # print(W.shape)
     #(3073, 10)
-    print(X.shape)
+    # print(X.shape)
     #(500, 3073)
 
     num_train = X.shape[0]
     rows = np.arange(num_train)
 
     scores = X.dot(W)
-    print(scores.shape)
+    # print(scores.shape)
     #(500, 10)
 
     #stability trick
@@ -118,7 +118,7 @@ def softmax_loss_vectorized(W, X, y, reg):
 
     exp_scores = np.exp(scores)
     sum_exp_scores_i = np.sum(exp_scores, axis=1)
-    print(sum_exp_scores_i.shape)
+    # print(sum_exp_scores_i.shape)
     #(500,)
 
     correct_exp_scores = exp_scores[rows,y]

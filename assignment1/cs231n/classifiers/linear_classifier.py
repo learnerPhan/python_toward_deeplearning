@@ -124,8 +124,6 @@ class LinearClassifier(object):
         sth = X.dot(self.W)
         y_pred = np.argmax(X.dot(self.W), axis=1)
 
-        print(y_pred.shape)
-
         pass
 
         # *****END OF YOUR CODE (DO NOT DELETE/MODIFY THIS LINE)*****
